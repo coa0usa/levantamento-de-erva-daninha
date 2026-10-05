@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Levantamento de Plantas Daninhas</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="logo-container">
+            <div class="logo-box">
+                <img src="Logo Vertical - Usina Santa Adélia Branco.png" alt="Usina Santa Adélia Logo" class="header-logo">
+            </div>
+            <div class="date-badges">
+                <div class="badge badge-active">Hoje: <span id="currentDate"></span></div>
+                <div class="badge badge-inactive">Ontem: <span id="yesterdayDate"></span></div>
+            </div>
+        </div>
+        <div class="time-container">
+            <div class="current-time" id="currentTime">00:00:00</div>
+            <div class="time-status">• Próx. atualiz. em <b>19:00</b> &nbsp; Últ. atualiz: <b>16:14:59</b></div>
+        </div>
+    </header>
+
+    <nav class="tabs-container">
+        <button class="tab-btn active" data-target="formulario-tab">Formulário</button>
+        <button class="tab-btn" data-target="basedados-tab">Base de Dados</button>
+    </nav>
+
+    <main class="main-content">
+        
+        <!-- Formulário Tab -->
+        <section id="formulario-tab" class="tab-panel active">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Novo Levantamento</h2>
+                </div>
+                <div class="card-body">
+                    <form id="weedForm">
+                        <div class="form-grid">
+                            <!-- CÓD. FZ -->
+                            <div class="input-group">
+                                <label for="codFz">CÓD. FZ</label>
+                                <input type="text" id="codFz" name="codFz" pattern="\d{5}" title="Preencha com exatamente 5 números" placeholder="Ex: 12345" required>
+                            </div>
+
+                            <!-- SIGLA -->
+                            <div class="input-group">
+                                <label for="sigla">SIGLA</label>
+                                <input type="text" id="sigla" name="sigla" placeholder="Ex: FZ-SUL" required>
+                            </div>
+
+                            <!-- BLOCO -->
+                            <div class="input-group">
+                                <label for="bloco">BLOCO</label>
+                                <input type="text" id="bloco" name="bloco" placeholder="Ex: B" required>
+                            </div>
+
+                            <!-- TALHÃO -->
+                            <div class="input-group">
+                                <label for="talhao">TALHÃO</label>
+                                <input type="number" id="talhao" name="talhao" placeholder="Ex: 15" required>
+                            </div>
+
+                            <!-- VARIEDADE -->
+                            <div class="input-group full-width">
+                                <label for="variedade">VARIEDADE</label>
+                                <input type="text" id="variedade" name="variedade" placeholder="Ex: Soja Três Marias" required>
+                            </div>
+
+                            <!-- PLANTA DANINHA -->
+                            <div class="input-group full-width">
+                                <label for="plantaDaninha">PLANTA DANINHA</label>
+                                <input type="text" id="plantaDaninha" name="plantaDaninha" placeholder="Ex: Buva, Capim-amargoso" required>
+                            </div>
+
+                            <!-- LOCALIZAÇÃO -->
+                            <div class="input-group full-width location-group">
+                                <label>LOCALIZAÇÃO</label>
+                                <div class="location-controls">
+                                    <button type="button" id="getLocationBtn" class="btn-action">Capturar Localização</button>
+                                    <span id="locationStatus" class="status-text">Localização não capturada</span>
+                                </div>
+                                <input type="hidden" id="latitude" name="latitude">
+                                <input type="hidden" id="longitude" name="longitude">
+                                <div id="map" class="map-container"></div>
+                            </div>
+
+                            <!-- SALVAR IMAGEM -->
+                            <div class="input-group full-width">
+                                <label>SALVAR IMAGEM</label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" id="imagem" name="imagem" accept="image/*" capture="environment" class="file-input">
+                                    <div class="file-upload-design">
+                                        <p>Tire uma foto ou escolha da galeria</p>
+                                    </div>
+                                </div>
+                                <div id="imagePreviewContainer" class="image-preview-container">
+                                    <img id="imagePreview" src="" alt="Preview da imagem" style="display: none;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" id="cancelEditBtn" class="btn-action" style="display: none; margin-right: 1rem;">Cancelar</button>
+                            <button type="submit" class="btn-success">Salvar Levantamento</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Base de Dados Tab -->
+        <section id="basedados-tab" class="tab-panel">
+            <div class="card">
+                <div class="card-header flex-header">
+                    <h2>Todos os Registros do Período</h2>
+                    <div class="header-actions">
+                        <button class="btn-success"><i class="icon-excel"></i> Exportar Excel</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="recordsTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Cód. FZ</th>
+                                    <th>Sigla</th>
+                                    <th>Bloco</th>
+                                    <th>Talhão</th>
+                                    <th>Variedade</th>
+                                    <th>Planta Daninha</th>
+                                    <th>Localização</th>
+                                    <th>Imagem</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordsBody">
+                                <!-- Records will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for Image Preview -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <img id="modalImage" src="" alt="Imagem do Levantamento">
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="script.js"></script>
+</body>
+</html>
