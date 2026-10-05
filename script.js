@@ -7,13 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeStr = now.toLocaleTimeString('pt-BR', { hour12: false });
         document.getElementById('currentTime').textContent = timeStr;
         
-        // Dates
+        // Date
         const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
         document.getElementById('currentDate').textContent = now.toLocaleDateString('pt-BR', dateOptions);
-        
-        const yesterday = new Date(now);
-        yesterday.setDate(yesterday.getDate() - 1);
-        document.getElementById('yesterdayDate').textContent = yesterday.toLocaleDateString('pt-BR', dateOptions);
     }
     
     setInterval(updateClock, 1000);
@@ -153,8 +149,37 @@ document.addEventListener('DOMContentLoaded', () => {
         if (file && file.size > 0) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                record.image = e.target.result;
-                saveRecord(record);
+                // Compress image before saving
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Compress as JPEG
+                    record.image = canvas.toDataURL('image/jpeg', 0.7);
+                    saveRecord(record);
+                }
+                img.src = e.target.result;
             }
             reader.readAsDataURL(file);
         } else {
@@ -178,13 +203,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (index !== -1) {
                 records[index] = record;
             }
-            alert("Levantamento atualizado com sucesso!");
         } else {
             records.unshift(record);
-            alert("Levantamento salvo com sucesso!");
         }
 
-        localStorage.setItem('weedRecordsLight', JSON.stringify(records));
+        try {
+            localStorage.setItem('weedRecordsLight', JSON.stringify(records));
+            alert(editingId ? "Levantamento atualizado com sucesso!" : "Levantamento salvo com sucesso!");
+        } catch (e) {
+            console.error(e);
+            alert("Erro ao salvar! A foto é muito grande e estourou a memória do navegador. Tente enviar fotos menores ou exclua registros antigos.");
+            return;
+        }
         
         resetFormState();
         loadRecords();
@@ -352,4 +382,98 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.style.display = "none";
         }
     }
+
+    // --- CADASTROS LOGIC (Variedades e Plantas Daninhas) ---
+    function loadCadastros() {
+        const variedades = JSON.parse(localStorage.getItem('weedVariedades') || '[]');
+        const plantasDaninhas = JSON.parse(localStorage.getItem('weedPlantasDaninhas') || '[]');
+
+        // Populate lists
+        const listaVariedade = document.getElementById('listaVariedade');
+        listaVariedade.innerHTML = '';
+        variedades.forEach(v => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${v}</span> <button class="btn-icon btn-delete" onclick="window.deleteVariedade('${v}')">🗑️</button>`;
+            listaVariedade.appendChild(li);
+        });
+
+        const listaPlanta = document.getElementById('listaPlantaDaninha');
+        listaPlanta.innerHTML = '';
+        plantasDaninhas.forEach(p => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${p}</span> <button class="btn-icon btn-delete" onclick="window.deletePlantaDaninha('${p}')">🗑️</button>`;
+            listaPlanta.appendChild(li);
+        });
+
+        // Populate select inputs in Formulario
+        const selectVariedade = document.getElementById('variedade');
+        // Save current selection to restore if editing
+        const currentVar = selectVariedade.value;
+        selectVariedade.innerHTML = '<option value="" disabled selected>Selecione a Variedade</option>';
+        variedades.forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v;
+            opt.textContent = v;
+            selectVariedade.appendChild(opt);
+        });
+        if(currentVar) selectVariedade.value = currentVar;
+
+        const selectPlanta = document.getElementById('plantaDaninha');
+        const currentPlanta = selectPlanta.value;
+        selectPlanta.innerHTML = '<option value="" disabled selected>Selecione a Planta Daninha</option>';
+        plantasDaninhas.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p;
+            opt.textContent = p;
+            selectPlanta.appendChild(opt);
+        });
+        if(currentPlanta) selectPlanta.value = currentPlanta;
+    }
+
+    window.addVariedade = function() {
+        const input = document.getElementById('novaVariedade');
+        const val = input.value.trim();
+        if(!val) return;
+
+        let variedades = JSON.parse(localStorage.getItem('weedVariedades') || '[]');
+        if(!variedades.includes(val)) {
+            variedades.push(val);
+            localStorage.setItem('weedVariedades', JSON.stringify(variedades));
+        }
+        input.value = '';
+        loadCadastros();
+    }
+
+    window.addPlantaDaninha = function() {
+        const input = document.getElementById('novaPlantaDaninha');
+        const val = input.value.trim();
+        if(!val) return;
+
+        let plantas = JSON.parse(localStorage.getItem('weedPlantasDaninhas') || '[]');
+        if(!plantas.includes(val)) {
+            plantas.push(val);
+            localStorage.setItem('weedPlantasDaninhas', JSON.stringify(plantas));
+        }
+        input.value = '';
+        loadCadastros();
+    }
+
+    window.deleteVariedade = function(val) {
+        if(!confirm(`Remover variedade: ${val}?`)) return;
+        let variedades = JSON.parse(localStorage.getItem('weedVariedades') || '[]');
+        variedades = variedades.filter(v => v !== val);
+        localStorage.setItem('weedVariedades', JSON.stringify(variedades));
+        loadCadastros();
+    }
+
+    window.deletePlantaDaninha = function(val) {
+        if(!confirm(`Remover planta daninha: ${val}?`)) return;
+        let plantas = JSON.parse(localStorage.getItem('weedPlantasDaninhas') || '[]');
+        plantas = plantas.filter(p => p !== val);
+        localStorage.setItem('weedPlantasDaninhas', JSON.stringify(plantas));
+        loadCadastros();
+    }
+
+    // Call loadCadastros on initialization
+    loadCadastros();
 });

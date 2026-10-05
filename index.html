@@ -18,20 +18,20 @@
             <div class="logo-box">
                 <img src="Logo Vertical - Usina Santa Adélia Branco.png" alt="Usina Santa Adélia Logo" class="header-logo">
             </div>
-            <div class="date-badges">
-                <div class="badge badge-active">Hoje: <span id="currentDate"></span></div>
-                <div class="badge badge-inactive">Ontem: <span id="yesterdayDate"></span></div>
+            <div class="header-title">
+                <h2>LEVANTAMENTO DE ERVA DANINHA</h2>
             </div>
         </div>
         <div class="time-container">
             <div class="current-time" id="currentTime">00:00:00</div>
-            <div class="time-status">• Próx. atualiz. em <b>19:00</b> &nbsp; Últ. atualiz: <b>16:14:59</b></div>
+            <div class="time-status" id="currentDate"></div>
         </div>
     </header>
 
     <nav class="tabs-container">
         <button class="tab-btn active" data-target="formulario-tab">Formulário</button>
         <button class="tab-btn" data-target="basedados-tab">Base de Dados</button>
+        <button class="tab-btn" data-target="cadastro-tab">Cadastro</button>
     </nav>
 
     <main class="main-content">
@@ -72,13 +72,19 @@
                             <!-- VARIEDADE -->
                             <div class="input-group full-width">
                                 <label for="variedade">VARIEDADE</label>
-                                <input type="text" id="variedade" name="variedade" placeholder="Ex: Soja Três Marias" required>
+                                <select id="variedade" name="variedade" required>
+                                    <option value="" disabled selected>Selecione a Variedade</option>
+                                    <!-- Options populated via JS -->
+                                </select>
                             </div>
 
                             <!-- PLANTA DANINHA -->
                             <div class="input-group full-width">
                                 <label for="plantaDaninha">PLANTA DANINHA</label>
-                                <input type="text" id="plantaDaninha" name="plantaDaninha" placeholder="Ex: Buva, Capim-amargoso" required>
+                                <select id="plantaDaninha" name="plantaDaninha" required>
+                                    <option value="" disabled selected>Selecione a Planta Daninha</option>
+                                    <!-- Options populated via JS -->
+                                </select>
                             </div>
 
                             <!-- LOCALIZAÇÃO -->
@@ -147,6 +153,44 @@
                                 <!-- Records will be populated here -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cadastro Tab -->
+        <section id="cadastro-tab" class="tab-panel">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Cadastros do Sistema</h2>
+                </div>
+                <div class="card-body">
+                    <div class="cadastro-grid">
+                        
+                        <!-- Cadastro Variedade -->
+                        <div class="cadastro-card">
+                            <h3>Cadastrar Variedade</h3>
+                            <div class="input-group" style="flex-direction: row; margin-top: 1rem; margin-bottom: 1rem;">
+                                <input type="text" id="novaVariedade" placeholder="Ex: SP32-4515" style="flex: 1;">
+                                <button type="button" class="btn-success" onclick="addVariedade()">Adicionar</button>
+                            </div>
+                            <ul class="cadastro-list" id="listaVariedade">
+                                <!-- Preenchido via JS -->
+                            </ul>
+                        </div>
+
+                        <!-- Cadastro Planta Daninha -->
+                        <div class="cadastro-card">
+                            <h3>Cadastrar Planta Daninha</h3>
+                            <div class="input-group" style="flex-direction: row; margin-top: 1rem; margin-bottom: 1rem;">
+                                <input type="text" id="novaPlantaDaninha" placeholder="Ex: Corolão" style="flex: 1;">
+                                <button type="button" class="btn-success" onclick="addPlantaDaninha()">Adicionar</button>
+                            </div>
+                            <ul class="cadastro-list" id="listaPlantaDaninha">
+                                <!-- Preenchido via JS -->
+                            </ul>
+                        </div>
+
                     </div>
                 </div>
             </div>

@@ -554,3 +554,97 @@ input[type="number"]:focus {
         right: 10px;
     }
 }
+
+/* Header Title */
+.header-title {
+    margin-left: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.header-title h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--brand-green);
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+    .header-title {
+        margin-left: 0;
+    }
+    .header-title h2 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Cadastro Tab Styles */
+.cadastro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.cadastro-card {
+    background-color: var(--input-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.cadastro-card h3 {
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.cadastro-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.cadastro-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-white);
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.select-dropdown {
+    width: 100%;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    font-family: inherit;
+    transition: border-color 0.2s;
+    appearance: none;
+}
+
+select {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    width: 100%;
+    transition: border-color 0.2s;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--brand-green);
+    background-color: var(--bg-white);
+}
