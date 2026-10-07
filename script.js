@@ -142,6 +142,14 @@ const db = getFirestore(app);
 
         if (selectedShapeLayer) map.removeLayer(selectedShapeLayer);
         if (!matches.length) return;
+        const feature = matches[0];
+        const properties = feature.properties || {};
+        if (properties.FAZENDA != null) document.getElementById('codFz').value = String(properties.FAZENDA);
+        if (properties.NOME_FAZ) document.getElementById('sigla').value = properties.NOME_FAZ;
+        if (properties.ZONA != null) document.getElementById('bloco').value = String(properties.ZONA);
+        const talhao = properties.TALHAO ?? properties.DESC_TALHA;
+        if (talhao != null) document.getElementById('talhao').value = String(talhao);
+
         selectedShapeLayer = L.geoJSON({ type: 'FeatureCollection', features: matches }, {
             style: { color: '#f97316', weight: 3, opacity: 1, fillColor: '#fb923c', fillOpacity: 0.3 }
         }).addTo(map);
