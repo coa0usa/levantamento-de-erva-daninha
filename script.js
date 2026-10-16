@@ -222,6 +222,7 @@ const db = getFirestore(app);
     let currentRecords = [];
     let currentVariedades = [];
     let currentPlantas = [];
+    let currentCortes = [];
 
     loadRecords();
 
@@ -238,6 +239,7 @@ const db = getFirestore(app);
             bloco: formData.get('bloco'),
             talhao: formData.get('talhao'),
             variedade: formData.get('variedade'),
+            corte: formData.get('corte'),
             plantaDaninha: formData.get('plantaDaninha'),
             latitude: formData.get('latitude'),
             longitude: formData.get('longitude'),
@@ -349,7 +351,7 @@ const db = getFirestore(app);
     });
 
     async function loadRecords() {
-        recordsBody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: var(--text-muted);">Carregando registros...</td></tr>';
+        recordsBody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: var(--text-muted);">Carregando registros...</td></tr>';
         
         try {
             const querySnapshot = await getDocs(collection(db, "levantamentos"));
@@ -365,7 +367,7 @@ const db = getFirestore(app);
             recordsBody.innerHTML = '';
             
             if (records.length === 0) {
-                recordsBody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: var(--text-muted);">Nenhum registro encontrado.</td></tr>';
+                recordsBody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: var(--text-muted);">Nenhum registro encontrado.</td></tr>';
                 return;
             }
 
@@ -398,6 +400,7 @@ const db = getFirestore(app);
                     <td>${record.bloco || ''}</td>
                     <td>${record.talhao || ''}</td>
                     <td>${record.variedade || ''}</td>
+                    <td>${record.corte || ''}</td>
                     <td>${record.plantaDaninha || ''}</td>
                     <td>${locationHtml}</td>
                     <td>${imageHtml}</td>
@@ -408,7 +411,7 @@ const db = getFirestore(app);
             });
         } catch (e) {
             console.error("Erro ao carregar registros", e);
-            recordsBody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: red;">Erro ao carregar registros. Verifique sua conexão.</td></tr>';
+            recordsBody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: red;">Erro ao carregar registros. Verifique sua conexão.</td></tr>';
         }
     }
 
@@ -437,6 +440,7 @@ const db = getFirestore(app);
         document.getElementById('bloco').value = record.bloco || '';
         document.getElementById('talhao').value = record.talhao || '';
         document.getElementById('variedade').value = record.variedade || '';
+        document.getElementById('corte').value = record.corte || '';
         document.getElementById('plantaDaninha').value = record.plantaDaninha || '';
         
         // Handle Location
@@ -514,6 +518,32 @@ const db = getFirestore(app);
             });
             currentPlantas = plantasDaninhas;
 
+            const corteSnapshot = await getDocs(collection(db, "cortes"));
+            let cortes = [];
+            corteSnapshot.forEach(doc => {
+                cortes.push({ id: doc.id, nome: doc.data().nome });
+            });
+            currentCortes = cortes;
+
+            const listaCorte = document.getElementById('listaCorte');
+            listaCorte.innerHTML = '';
+            cortes.forEach(c => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${c.nome}</span> <button class="btn-icon btn-delete" onclick="window.deleteCorte('${c.id}')">🗑️</button>`;
+                listaCorte.appendChild(li);
+            });
+
+            const selectCorte = document.getElementById('corte');
+            const currentCorte = selectCorte.value;
+            selectCorte.innerHTML = '<option value="" disabled selected>Selecione o Corte</option>';
+            cortes.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.nome;
+                opt.textContent = c.nome;
+                selectCorte.appendChild(opt);
+            });
+            if(currentCorte) selectCorte.value = currentCorte;
+
             // Populate lists
             const listaVariedade = document.getElementById('listaVariedade');
             listaVariedade.innerHTML = '';
@@ -576,6 +606,35 @@ const db = getFirestore(app);
             await loadCadastros();
         } catch (e) {
             console.error("Erro ao adicionar variedade", e);
+        }
+    }
+
+    window.addCorte = async function() {
+        const input = document.getElementById('novoCorte');
+        const val = input.value.trim();
+        if(!val) return;
+
+        if(currentCortes.find(c => c.nome.toLowerCase() === val.toLowerCase())) {
+            alert("Este corte já está cadastrado!");
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, "cortes"), { nome: val });
+            input.value = '';
+            await loadCadastros();
+        } catch (e) {
+            console.error("Erro ao adicionar corte", e);
+        }
+    }
+
+    window.deleteCorte = async function(id) {
+        if(!confirm(`Remover este corte?`)) return;
+        try {
+            await deleteDoc(doc(db, "cortes", id));
+            await loadCadastros();
+        } catch (e) {
+            console.error("Erro ao remover", e);
         }
     }
 

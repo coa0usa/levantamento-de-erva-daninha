@@ -78,6 +78,15 @@
                                 </select>
                             </div>
 
+                            <!-- CORTE -->
+                            <div class="input-group full-width">
+                                <label for="corte">CORTE</label>
+                                <select id="corte" name="corte" required>
+                                    <option value="" disabled selected>Selecione o Corte</option>
+                                    <!-- Options populated via JS -->
+                                </select>
+                            </div>
+
                             <!-- PLANTA DANINHA -->
                             <div class="input-group full-width">
                                 <label for="plantaDaninha">PLANTA DANINHA</label>
@@ -142,6 +151,7 @@
                                     <th>Bloco</th>
                                     <th>Talhão</th>
                                     <th>Variedade</th>
+                                    <th>Corte</th>
                                     <th>Planta Daninha</th>
                                     <th>Localização</th>
                                     <th>Imagem</th>
@@ -175,6 +185,18 @@
                                 <button type="button" class="btn-success" onclick="addVariedade()">Adicionar</button>
                             </div>
                             <ul class="cadastro-list" id="listaVariedade">
+                                <!-- Preenchido via JS -->
+                            </ul>
+                        </div>
+
+                        <!-- Cadastro Corte -->
+                        <div class="cadastro-card">
+                            <h3>Cadastrar Corte</h3>
+                            <div class="input-group" style="flex-direction: row; margin-top: 1rem; margin-bottom: 1rem;">
+                                <input type="text" id="novoCorte" placeholder="Ex: 1º Corte" style="flex: 1;">
+                                <button type="button" class="btn-success" onclick="addCorte()">Adicionar</button>
+                            </div>
+                            <ul class="cadastro-list" id="listaCorte">
                                 <!-- Preenchido via JS -->
                             </ul>
                         </div>
